@@ -1,21 +1,14 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"
 
-[project]
+[tool.poetry]
 name = "csv-stream-diff"
 version = "0.1.0"
 description = "Stream and compare very large CSV files with multiprocessing."
-readme = "README.md"
+authors = ["Jordi"]
 license = "MIT"
-requires-python = ">=3.10"
-authors = [
-  { name = "Jordi" }
-]
-dependencies = [
-  "PyYAML>=6.0",
-  "rich>=13.7",
-]
+readme = "README.md"
 keywords = ["csv", "diff", "streaming", "multiprocessing", "comparison"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -27,18 +20,24 @@ classifiers = [
   "Topic :: Software Development :: Testing",
   "Topic :: Utilities",
 ]
-
-[project.optional-dependencies]
-dev = [
-  "behave>=1.2.6",
-  "pytest>=7.4",
+packages = [
+  { include = "csvstreamdiff", from = "src" },
+]
+include = [
+  { path = "config.example.yaml", format = ["sdist", "wheel"] },
+  { path = "BLOGPOST.md", format = "sdist" },
+  { path = "generator", format = "sdist" },
+  { path = "tests", format = "sdist" },
 ]
 
-[project.scripts]
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+PyYAML = ">=6.0"
+rich = ">=13.7"
+
+[tool.poetry.group.dev.dependencies]
+behave = ">=1.2.6"
+pytest = ">=7.4"
+
+[tool.poetry.scripts]
 csv-stream-diff = "csvstreamdiff.cli:main"
-
-[tool.setuptools]
-package-dir = {"" = "src"}
-
-[tool.setuptools.packages.find]
-where = ["src"]

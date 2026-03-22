@@ -22,7 +22,7 @@ pip install csv-stream-diff
 For local development:
 
 ```bash
-pip install -e .[dev]
+poetry install
 ```
 
 ## CLI
@@ -107,19 +107,19 @@ Generated artifacts:
 Run unit tests:
 
 ```bash
-pytest
+poetry run pytest
 ```
 
 Run BDD acceptance tests:
 
 ```bash
-behave tests/features
+poetry run behave tests/features
 ```
 
 Run a package build:
 
 ```bash
-python -m build
+poetry build
 ```
 
 ## PyPI Packaging
@@ -127,11 +127,11 @@ python -m build
 Build source and wheel distributions:
 
 ```bash
-python -m build
+poetry build
 ```
 
 Upload after verifying artifacts:
 
 ```bash
-python -m twine upload dist/*
+poetry publish
 ```
