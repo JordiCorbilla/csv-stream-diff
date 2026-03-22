@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "csv-stream-diff"
+version = "0.1.0"
+description = "Stream and compare very large CSV files with multiprocessing."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+  { name = "Jordi" }
+]
+dependencies = [
+  "PyYAML>=6.0",
+  "rich>=13.7",
+]
+keywords = ["csv", "diff", "streaming", "multiprocessing", "comparison"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: File Formats",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+dev = [
+  "behave>=1.2.6",
+  "pytest>=7.4",
+]
+
+[project.scripts]
+csv-stream-diff = "csvstreamdiff.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

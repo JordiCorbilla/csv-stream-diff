@@ -1,0 +1,4 @@
+include config.example.yaml
+graft generator
+graft tests/features
+global-exclude __pycache__ *.py[cod]
