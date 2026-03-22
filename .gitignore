@@ -207,3 +207,6 @@ marimo/_lsp/
 __marimo__/
 /generated-test
 /notebook-demo
+BLOGPOST.md
+config.example.yaml
+csv_compare_mp.py
