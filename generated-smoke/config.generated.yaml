@@ -1,0 +1,39 @@
+files:
+  left: generated-smoke\left.csv
+  right: generated-smoke\right.csv
+keys:
+  left:
+  - customer_id
+  - transaction_date
+  right:
+  - cust_id
+  - txn_dt
+compare:
+  left:
+  - amount
+  - status
+  - description
+  right:
+  - transaction_amount
+  - txn_status
+  - desc
+comparison:
+  case_insensitive: false
+  trim_whitespace: true
+  treat_null_as_equal: false
+sampling:
+  size: 0
+  seed: 7
+performance:
+  chunk_size: 1000
+  workers: 1
+  bucket_count: 8
+  report_every_rows: 500
+  temp_directory: generated-smoke\tmp
+  keep_temp_files: false
+  show_progress: false
+output:
+  directory: generated-smoke\output
+  prefix: generated_
+  include_full_rows: true
+  summary_format: both

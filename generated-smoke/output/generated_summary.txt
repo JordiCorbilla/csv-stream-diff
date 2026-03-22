@@ -1,0 +1,39 @@
+csv-stream-diff summary
+======================
+
+left_file: generated-smoke\left.csv
+right_file: generated-smoke\right.csv
+mode: full
+sample_requested_size: 0
+sample_actual_size: 0
+sample_seed: 7
+
+counts
+------
+total_left_rows: 101
+total_right_rows: 100
+left_unique_keys: 100
+right_unique_keys: 99
+matched: 97
+only_in_left: 3
+only_in_right: 2
+different_rows: 4
+different_cells: 8
+duplicate_keys_left: 1
+duplicate_keys_right: 1
+
+outputs
+-------
+generated-smoke\output\generated_only_in_left.csv
+generated-smoke\output\generated_only_in_right.csv
+generated-smoke\output\generated_differences.csv
+generated-smoke\output\generated_duplicate_keys.csv
+generated-smoke\output\generated_summary.json
+
+warnings
+--------
+Duplicate keys detected. The comparison used the first occurrence for each key.
+Left file contains 1 duplicate rows and comparison uses the first occurrence.
+Right file contains 1 duplicate rows and comparison uses the first occurrence.
+
+elapsed_seconds: 0.051

@@ -1,0 +1,107 @@
+{
+  "files": {
+    "left": "generated-smoke\\left.csv",
+    "right": "generated-smoke\\right.csv"
+  },
+  "counts": {
+    "total_left_rows": 101,
+    "total_right_rows": 100,
+    "left_unique_keys": 100,
+    "right_unique_keys": 99,
+    "matched": 97,
+    "only_in_left": 3,
+    "only_in_right": 2,
+    "different_rows": 4,
+    "different_cells": 8,
+    "duplicate_keys_left": 1,
+    "duplicate_keys_right": 1
+  },
+  "sampling": {
+    "mode": "full",
+    "requested_size": 0,
+    "actual_size": 0,
+    "seed": 7,
+    "left_unique_population": 100
+  },
+  "outputs": {
+    "only_in_left": "generated-smoke\\output\\generated_only_in_left.csv",
+    "only_in_right": "generated-smoke\\output\\generated_only_in_right.csv",
+    "differences": "generated-smoke\\output\\generated_differences.csv",
+    "duplicate_keys": "generated-smoke\\output\\generated_duplicate_keys.csv",
+    "summary_json": "generated-smoke\\output\\generated_summary.json"
+  },
+  "warnings": [
+    "Duplicate keys detected. The comparison used the first occurrence for each key.",
+    "Left file contains 1 duplicate rows and comparison uses the first occurrence.",
+    "Right file contains 1 duplicate rows and comparison uses the first occurrence."
+  ],
+  "effective_config": {
+    "csv": {
+      "left": {
+        "encoding": "utf-8-sig",
+        "delimiter": ",",
+        "quotechar": "\"",
+        "escapechar": null,
+        "newline": ""
+      },
+      "right": {
+        "encoding": "utf-8-sig",
+        "delimiter": ",",
+        "quotechar": "\"",
+        "escapechar": null,
+        "newline": ""
+      }
+    },
+    "comparison": {
+      "case_insensitive": false,
+      "trim_whitespace": true,
+      "treat_null_as_equal": false
+    },
+    "sampling": {
+      "size": 0,
+      "seed": 7
+    },
+    "performance": {
+      "chunk_size": 1000,
+      "workers": 1,
+      "bucket_count": 8,
+      "report_every_rows": 500,
+      "temp_directory": "generated-smoke\\tmp",
+      "keep_temp_files": false,
+      "show_progress": false
+    },
+    "output": {
+      "directory": "generated-smoke\\output",
+      "prefix": "generated_",
+      "include_full_rows": true,
+      "summary_format": "both"
+    },
+    "files": {
+      "left": "generated-smoke\\left.csv",
+      "right": "generated-smoke\\right.csv"
+    },
+    "keys": {
+      "left": [
+        "customer_id",
+        "transaction_date"
+      ],
+      "right": [
+        "cust_id",
+        "txn_dt"
+      ]
+    },
+    "compare": {
+      "left": [
+        "amount",
+        "status",
+        "description"
+      ],
+      "right": [
+        "transaction_amount",
+        "txn_status",
+        "desc"
+      ]
+    }
+  },
+  "elapsed_seconds": 0.051078081130981445
+}

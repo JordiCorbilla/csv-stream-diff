@@ -1,0 +1,4 @@
+key_customer_id,key_transaction_date,left_row_json
+C0000042,2026-01-15,"{""amount"": ""149.14"", ""customer_id"": ""C0000042"", ""description"": ""transaction-42"", ""status"": ""OPEN"", ""transaction_date"": ""2026-01-15""}"
+C0000020,2026-01-21,"{""amount"": ""123.40"", ""customer_id"": ""C0000020"", ""description"": ""transaction-20"", ""status"": ""OPEN"", ""transaction_date"": ""2026-01-21""}"
+C0000051,2026-01-24,"{""amount"": ""159.67"", ""customer_id"": ""C0000051"", ""description"": ""transaction-51"", ""status"": ""CLOSED"", ""transaction_date"": ""2026-01-24""}"

@@ -1,0 +1,32 @@
+{
+  "counts": {
+    "only_in_left": 3,
+    "only_in_right": 2,
+    "different_rows": 4,
+    "duplicate_keys_left": 1,
+    "duplicate_keys_right": 1
+  },
+  "keys": {
+    "changed": [
+      "C0000087",
+      "C0000007",
+      "C0000010",
+      "C0000072"
+    ],
+    "only_in_left": [
+      "C0000042",
+      "C0000020",
+      "C0000051"
+    ],
+    "only_in_right": [
+      "C0000101",
+      "C0000102"
+    ],
+    "duplicate_left": [
+      "C0000015"
+    ],
+    "duplicate_right": [
+      "C0000053"
+    ]
+  }
+}

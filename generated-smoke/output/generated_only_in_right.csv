@@ -1,0 +1,3 @@
+key_customer_id,key_transaction_date,right_row_json
+C0000102,2026-01-19,"{""cust_id"": ""C0000102"", ""desc"": ""transaction-102"", ""transaction_amount"": ""219.34"", ""txn_dt"": ""2026-01-19"", ""txn_status"": ""OPEN""}"
+C0000101,2026-01-18,"{""cust_id"": ""C0000101"", ""desc"": ""transaction-101"", ""transaction_amount"": ""218.17"", ""txn_dt"": ""2026-01-18"", ""txn_status"": ""CLOSED""}"
