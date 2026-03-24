@@ -2,6 +2,8 @@
 
 `csv-stream-diff` compares very large CSV files with streaming I/O, hashed bucket partitioning, and multiprocessing. It is designed for datasets that are too large to load fully into memory.
 
+https://pypistats.org/packages/csv-stream-diff
+
 ## Features
 
 - Compare CSVs by configurable key columns, even when left and right headers differ
