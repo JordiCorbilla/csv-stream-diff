@@ -103,12 +103,14 @@ These behaviors are controlled in the `comparison` section:
 - `normalize_numeric_values`
 - `treat_null_as_zero_for_numeric`
 - `numeric_decimal_places`
+- `numeric_tolerance`
 - `normalize_boolean_values`
 
 Examples:
 
 - `NULL`, `""`, and `"   "` can be treated as equal
 - `14.3553` and `14.355344355` can compare equal with `numeric_decimal_places: 4`
+- `1.14725` and `1.14724961` can compare equal with `numeric_tolerance: 0.0001`
 - `1` and `True` can compare equal when `normalize_boolean_values` is enabled
 
 ## Duplicate Keys

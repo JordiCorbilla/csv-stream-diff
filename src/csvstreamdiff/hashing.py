@@ -21,6 +21,7 @@ class NormalizationSettings:
     normalize_numeric_values: bool = False
     treat_null_as_zero_for_numeric: bool = False
     numeric_decimal_places: Optional[int] = None
+    numeric_tolerance: Optional[str] = None
     normalize_boolean_values: bool = False
 
 
@@ -128,6 +129,12 @@ def normalized_pair(
             and right_boolean is not None
         ):
             return str(left_boolean).lower(), str(right_boolean).lower()
+
+    if settings.numeric_tolerance is not None and left_decimal is not None and right_decimal is not None:
+        tolerance = Decimal(str(settings.numeric_tolerance))
+        if abs(left_decimal - right_decimal) <= tolerance:
+            canonical = _canonical_decimal(_quantize_decimal(left_decimal, settings.numeric_decimal_places))
+            return canonical, canonical
 
     if settings.normalize_numeric_values and left_decimal is not None and right_decimal is not None:
         left_decimal = _quantize_decimal(left_decimal, settings.numeric_decimal_places)

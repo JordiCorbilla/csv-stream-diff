@@ -48,6 +48,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "normalize_numeric_values": True,
         "treat_null_as_zero_for_numeric": True,
         "numeric_decimal_places": None,
+        "numeric_tolerance": None,
         "normalize_boolean_values": True,
     },
     "sampling": {
