@@ -629,7 +629,9 @@ def finish_progress_threads(
     drainer.join(timeout=1.0)
     renderer.join(timeout=1.0)
     try:
-        progress_queue.close()
+        close = getattr(progress_queue, "close", None)
+        if callable(close):
+            close()
     except Exception:
         pass
 

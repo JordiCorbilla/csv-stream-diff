@@ -152,6 +152,40 @@ def test_duplicate_keys_use_first_occurrence(tmp_path) -> None:
     assert any("first occurrence" in warning for warning in summary["warnings"])
 
 
+def test_compare_csv_files_runs_with_multiple_workers(tmp_path) -> None:
+    left_path = tmp_path / "left.csv"
+    right_path = tmp_path / "right.csv"
+    write_csv(
+        left_path,
+        ["customer_id", "transaction_date", "amount", "status", "description"],
+        [
+            {"customer_id": "C1", "transaction_date": "2026-01-01", "amount": "10.00", "status": "OPEN", "description": "alpha"},
+            {"customer_id": "C2", "transaction_date": "2026-01-02", "amount": "20.00", "status": "OPEN", "description": "beta"},
+            {"customer_id": "C3", "transaction_date": "2026-01-03", "amount": "30.00", "status": "OPEN", "description": "gamma"},
+            {"customer_id": "C4", "transaction_date": "2026-01-04", "amount": "40.00", "status": "OPEN", "description": "delta"},
+        ],
+    )
+    write_csv(
+        right_path,
+        ["cust_id", "txn_dt", "transaction_amount", "txn_status", "desc"],
+        [
+            {"cust_id": "C1", "txn_dt": "2026-01-01", "transaction_amount": "10.00", "txn_status": "OPEN", "desc": "alpha"},
+            {"cust_id": "C2", "txn_dt": "2026-01-02", "transaction_amount": "22.00", "txn_status": "OPEN", "desc": "beta"},
+            {"cust_id": "C4", "txn_dt": "2026-01-04", "transaction_amount": "40.00", "txn_status": "OPEN", "desc": "delta"},
+            {"cust_id": "C5", "txn_dt": "2026-01-05", "transaction_amount": "50.00", "txn_status": "OPEN", "desc": "epsilon"},
+        ],
+    )
+
+    config = build_config(tmp_path, left_path, right_path)
+    config["performance"]["workers"] = 2
+    config["performance"]["bucket_count"] = 8
+    summary = compare_csv_files(config)
+
+    assert summary["counts"]["only_in_left"] == 1
+    assert summary["counts"]["only_in_right"] == 1
+    assert summary["counts"]["different_rows"] == 1
+
+
 def test_invalid_config_raises_on_compare_length_mismatch(tmp_path) -> None:
     left_path = tmp_path / "left.csv"
     right_path = tmp_path / "right.csv"

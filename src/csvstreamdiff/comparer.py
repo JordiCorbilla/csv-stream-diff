@@ -285,7 +285,8 @@ def compare_csv_files(config: dict[str, Any]) -> dict[str, Any]:
     temp_root.mkdir(parents=True, exist_ok=True)
 
     ctx = mp.get_context("spawn")
-    progress_queue: mp.Queue = ctx.Queue()
+    manager = ctx.Manager()
+    progress_queue = manager.Queue()
     monitor = ProgressMonitor(
         bucket_count=effective["performance"]["bucket_count"],
         total_bytes_left=os.path.getsize(effective["files"]["left"]),
@@ -470,6 +471,7 @@ def compare_csv_files(config: dict[str, Any]) -> dict[str, Any]:
             renderer=renderer,
             progress_queue=progress_queue,
         )
+        manager.shutdown()
         cleanup_temp_dir(temp_root, bool(effective["performance"]["keep_temp_files"]))
 
 
