@@ -32,7 +32,9 @@ def build_config(tmp_path: Path, left_path: Path, right_path: Path, *, sample_si
         "comparison": {
             "case_insensitive": False,
             "trim_whitespace": True,
-            "treat_null_as_equal": False,
+            "treat_null_as_equal": True,
+            "normalize_numeric_values": True,
+            "treat_null_as_zero_for_numeric": True,
         },
         "sampling": {"size": sample_size, "seed": seed},
         "performance": {
@@ -83,7 +85,11 @@ def test_compare_csv_files_reports_differences_and_presence_gaps(tmp_path) -> No
     assert summary["counts"]["different_cells"] == 2
 
     diff_rows = read_csv(Path(summary["outputs"]["differences"]))
-    assert {row["left_column"] for row in diff_rows} == {"amount", "description"}
+    assert len(diff_rows) == 1
+    assert diff_rows[0]["difference_count"] == "2"
+    assert "amount/transaction_amount" in diff_rows[0]["differences_text"]
+    difference_items = json.loads(diff_rows[0]["differences_json"])
+    assert {item["left_column"] for item in difference_items} == {"amount", "description"}
 
 
 def test_compare_csv_files_sampling_is_exact_and_reproducible(tmp_path) -> None:
@@ -150,6 +156,32 @@ def test_duplicate_keys_use_first_occurrence(tmp_path) -> None:
     assert summary["counts"]["duplicate_keys_left"] == 1
     assert summary["counts"]["different_rows"] == 0
     assert any("first occurrence" in warning for warning in summary["warnings"])
+
+
+def test_numeric_and_null_equivalence_avoids_false_discrepancies(tmp_path) -> None:
+    left_path = tmp_path / "left.csv"
+    right_path = tmp_path / "right.csv"
+    write_csv(
+        left_path,
+        ["customer_id", "transaction_date", "amount", "status", "description"],
+        [
+            {"customer_id": "C1", "transaction_date": "2026-01-01", "amount": "0", "status": "OPEN", "description": ""},
+            {"customer_id": "C2", "transaction_date": "2026-01-02", "amount": "0", "status": "OPEN", "description": "NULL"},
+        ],
+    )
+    write_csv(
+        right_path,
+        ["cust_id", "txn_dt", "transaction_amount", "txn_status", "desc"],
+        [
+            {"cust_id": "C1", "txn_dt": "2026-01-01", "transaction_amount": "0.000000000", "txn_status": "OPEN", "desc": ""},
+            {"cust_id": "C2", "txn_dt": "2026-01-02", "transaction_amount": "", "txn_status": "OPEN", "desc": ""},
+        ],
+    )
+
+    summary = compare_csv_files(build_config(tmp_path, left_path, right_path))
+
+    assert summary["counts"]["different_rows"] == 0
+    assert summary["counts"]["different_cells"] == 0
 
 
 def test_compare_csv_files_runs_with_multiple_workers(tmp_path) -> None:

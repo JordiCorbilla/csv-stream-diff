@@ -52,10 +52,9 @@ def make_output_headers(left_key_columns: Sequence[str], include_full_rows: bool
     only_left = common_key_fields + (["left_row_json"] if include_full_rows else [])
     only_right = common_key_fields + (["right_row_json"] if include_full_rows else [])
     differences = common_key_fields + [
-        "left_column",
-        "right_column",
-        "left_value",
-        "right_value",
+        "difference_count",
+        "differences_text",
+        "differences_json",
     ]
     if include_full_rows:
         differences.extend(["left_row_json", "right_row_json"])
@@ -391,6 +390,7 @@ def compare_bucket_worker(args: tuple[Any, ...]) -> dict[str, Any]:
                 stats["matched"] += 1
                 row_has_difference = False
                 left_row = left_index[key]
+                row_differences: list[dict[str, Any]] = []
                 for left_column, right_column in compare_pairs:
                     left_normalized, right_normalized = normalized_pair(
                         left_row.get(left_column),
@@ -402,19 +402,32 @@ def compare_bucket_worker(args: tuple[Any, ...]) -> dict[str, Any]:
 
                     row_has_difference = True
                     stats["different_cells"] += 1
+                    row_differences.append(
+                        {
+                            "left_column": left_column,
+                            "right_column": right_column,
+                            "left_value": left_row.get(left_column),
+                            "right_value": row.get(right_column),
+                        }
+                    )
+
+                if row_has_difference:
+                    differences_text = "; ".join(
+                        f"{item['left_column']}: {item['left_value']} -> {item['right_value']}"
+                        if item["left_column"] == item["right_column"]
+                        else f"{item['left_column']}/{item['right_column']}: {item['left_value']} -> {item['right_value']}"
+                        for item in row_differences
+                    )
                     diff_row: dict[str, Any] = {
                         **key_to_output_dict(key, left_keys),
-                        "left_column": left_column,
-                        "right_column": right_column,
-                        "left_value": left_row.get(left_column),
-                        "right_value": row.get(right_column),
+                        "difference_count": len(row_differences),
+                        "differences_text": differences_text,
+                        "differences_json": json.dumps(row_differences, ensure_ascii=False, sort_keys=True),
                     }
                     if include_full_rows:
                         diff_row["left_row_json"] = json.dumps(left_row, ensure_ascii=False, sort_keys=True)
                         diff_row["right_row_json"] = json.dumps(row, ensure_ascii=False, sort_keys=True)
                     differences_writer.writerow(diff_row)
-
-                if row_has_difference:
                     stats["different_rows"] += 1
                 sampled_left_keys_remaining.discard(key)
 

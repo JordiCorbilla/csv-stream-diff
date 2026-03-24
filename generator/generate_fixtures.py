@@ -141,7 +141,9 @@ def generate_fixtures(
         "comparison": {
             "case_insensitive": False,
             "trim_whitespace": True,
-            "treat_null_as_equal": False,
+            "treat_null_as_equal": True,
+            "normalize_numeric_values": True,
+            "treat_null_as_zero_for_numeric": True,
         },
         "sampling": {"size": 0, "seed": seed},
         "performance": {

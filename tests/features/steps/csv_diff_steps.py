@@ -67,7 +67,9 @@ def step_default_config(context) -> None:  # type: ignore[no-untyped-def]
         "comparison": {
             "case_insensitive": False,
             "trim_whitespace": True,
-            "treat_null_as_equal": False,
+            "treat_null_as_equal": True,
+            "normalize_numeric_values": True,
+            "treat_null_as_zero_for_numeric": True,
         },
         "sampling": {"size": context.sampling_size, "seed": context.sampling_seed},
         "performance": {
@@ -108,7 +110,9 @@ def step_sampling_field(context, name: str, value: int) -> None:  # type: ignore
 def step_output_file_contains(context, name: str) -> None:  # type: ignore[no-untyped-def]
     rows = read_csv(Path(context.summary["outputs"][name]))
     expected = table_to_rows(context.table)
-    assert rows == expected
+    headings = list(context.table.headings)
+    projected_rows = [{heading: row.get(heading, "") for heading in headings} for row in rows]
+    assert projected_rows == expected
 
 
 @then('the summary warning contains "{text}"')

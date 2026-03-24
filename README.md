@@ -8,7 +8,7 @@
 - Stream files in chunks with configurable `chunk_size`
 - Partition by stable hashed key to keep worker memory bounded
 - Use all CPUs by default, or set a worker count explicitly
-- Write machine-usable output artifacts for left-only, right-only, cell differences, duplicate keys, and run summary
+- Write machine-usable output artifacts for left-only, right-only, row-level differences, duplicate keys, and run summary
 - Support exact random sampling for validation runs with `sampling.size > 0`
 - Warn on duplicate keys and continue using the first occurrence per key
 - Include a fixture generator and both `pytest` and `behave` tests
@@ -61,7 +61,7 @@ Main sections:
 - `comparison`: normalization options
 - `sampling`: `size: 0` means full comparison; any positive value means exact random sample by left-side unique key with a fixed seed
 - `performance`: chunking, worker count, bucket count, temp directory, progress reporting
-- `output`: output directory, filename prefix, whether to include serialized full rows, and whether to write a text summary
+- `output`: output directory, filename prefix, whether to include serialized full rows once per differing key, and whether to write a text summary
 
 ## Output Files
 
@@ -74,7 +74,13 @@ The tool writes these artifacts to `output.directory`:
 - `<prefix>summary.json`
 - `<prefix>summary.txt` when `output.summary_format` is `text` or `both`
 
-`differences.csv` contains one row per differing cell with both the left and right column names and values.
+`differences.csv` contains one row per differing key with:
+
+- `difference_count`
+- `differences_text`
+- `differences_json`
+
+`differences_json` contains the field-level left/right mismatches for that key. This keeps the diff output far smaller than writing one CSV row per changed field.
 
 ## Sampling
 
@@ -82,6 +88,20 @@ The tool writes these artifacts to `output.directory`:
 - `sampling.size > 0` selects an exact random sample of left-side unique keys using reservoir sampling.
 - Sampling is reproducible when `sampling.seed` stays the same.
 - Duplicate keys do not expand the sampling population because only the first occurrence per key is considered.
+
+## Value Normalization
+
+By default the comparison is more tolerant of equivalent values that often appear differently in CSV exports:
+
+- `NULL` and empty string can be treated as equal
+- `0` and `0.000000000` can be treated as equal for numeric-looking values
+- `NULL` and `0` can be treated as equal for numeric-looking values
+
+These behaviors are controlled in the `comparison` section:
+
+- `treat_null_as_equal`
+- `normalize_numeric_values`
+- `treat_null_as_zero_for_numeric`
 
 ## Duplicate Keys
 

@@ -20,9 +20,8 @@ Feature: CSV stream diff
     And the summary count "different_rows" is 1
     And the summary count "different_cells" is 2
     And the output file "differences" contains
-      | key_customer_id | key_transaction_date | left_column  | right_column       | left_value | right_value  |
-      | C2              | 2026-01-02           | amount       | transaction_amount | 20.00      | 25.00        |
-      | C2              | 2026-01-02           | description  | desc               | beta       | beta changed |
+      | key_customer_id | key_transaction_date | difference_count | differences_text                                                                     |
+      | C2              | 2026-01-02           | 2                | amount/transaction_amount: 20.00 -> 25.00; description/desc: beta -> beta changed |
 
   Scenario: sampling compares an exact number of keys
     Given a comparison workspace
