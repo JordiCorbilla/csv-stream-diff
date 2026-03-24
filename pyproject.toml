@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "csv-stream-diff"
-version = "0.1.0"
+version = "0.1.1"
 description = "Stream and compare very large CSV files with multiprocessing."
 authors = ["Jordi"]
 license = "MIT"
