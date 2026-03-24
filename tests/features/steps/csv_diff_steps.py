@@ -70,6 +70,8 @@ def step_default_config(context) -> None:  # type: ignore[no-untyped-def]
             "treat_null_as_equal": True,
             "normalize_numeric_values": True,
             "treat_null_as_zero_for_numeric": True,
+            "numeric_decimal_places": 4,
+            "normalize_boolean_values": True,
         },
         "sampling": {"size": context.sampling_size, "seed": context.sampling_seed},
         "performance": {

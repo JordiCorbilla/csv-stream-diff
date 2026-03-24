@@ -25,7 +25,11 @@ def test_normalized_pair_can_treat_numeric_zero_and_null_as_equal() -> None:
         treat_null_as_equal=True,
         normalize_numeric_values=True,
         treat_null_as_zero_for_numeric=True,
+        numeric_decimal_places=4,
+        normalize_boolean_values=True,
     )
 
     assert normalized_pair("0", "0.000000000", settings) == ("0", "0")
     assert normalized_pair("0", None, settings) == ("0", "0")
+    assert normalized_pair("14.3553", "14.355344355", settings) == ("14.3553", "14.3553")
+    assert normalized_pair("1", "True", settings) == ("true", "true")

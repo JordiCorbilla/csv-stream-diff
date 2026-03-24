@@ -102,6 +102,14 @@ These behaviors are controlled in the `comparison` section:
 - `treat_null_as_equal`
 - `normalize_numeric_values`
 - `treat_null_as_zero_for_numeric`
+- `numeric_decimal_places`
+- `normalize_boolean_values`
+
+Examples:
+
+- `NULL`, `""`, and `"   "` can be treated as equal
+- `14.3553` and `14.355344355` can compare equal with `numeric_decimal_places: 4`
+- `1` and `True` can compare equal when `normalize_boolean_values` is enabled
 
 ## Duplicate Keys
 

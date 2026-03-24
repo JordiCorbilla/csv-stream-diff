@@ -35,6 +35,8 @@ def build_config(tmp_path: Path, left_path: Path, right_path: Path, *, sample_si
             "treat_null_as_equal": True,
             "normalize_numeric_values": True,
             "treat_null_as_zero_for_numeric": True,
+            "numeric_decimal_places": 4,
+            "normalize_boolean_values": True,
         },
         "sampling": {"size": sample_size, "seed": seed},
         "performance": {
@@ -175,6 +177,30 @@ def test_numeric_and_null_equivalence_avoids_false_discrepancies(tmp_path) -> No
         [
             {"cust_id": "C1", "txn_dt": "2026-01-01", "transaction_amount": "0.000000000", "txn_status": "OPEN", "desc": ""},
             {"cust_id": "C2", "txn_dt": "2026-01-02", "transaction_amount": "", "txn_status": "OPEN", "desc": ""},
+        ],
+    )
+
+    summary = compare_csv_files(build_config(tmp_path, left_path, right_path))
+
+    assert summary["counts"]["different_rows"] == 0
+    assert summary["counts"]["different_cells"] == 0
+
+
+def test_numeric_precision_and_boolean_equivalence_avoid_false_discrepancies(tmp_path) -> None:
+    left_path = tmp_path / "left.csv"
+    right_path = tmp_path / "right.csv"
+    write_csv(
+        left_path,
+        ["customer_id", "transaction_date", "amount", "status", "description"],
+        [
+            {"customer_id": "C1", "transaction_date": "2026-01-01", "amount": "14.3553", "status": "1", "description": "alpha"},
+        ],
+    )
+    write_csv(
+        right_path,
+        ["cust_id", "txn_dt", "transaction_amount", "txn_status", "desc"],
+        [
+            {"cust_id": "C1", "txn_dt": "2026-01-01", "transaction_amount": "14.355344355", "txn_status": "True", "desc": "alpha"},
         ],
     )
 
