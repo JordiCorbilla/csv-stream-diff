@@ -68,6 +68,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "directory": "./output",
         "prefix": "comparison_",
         "include_full_rows": True,
+        "include_normalized_values": False,
         "summary_format": "both",
     },
 }

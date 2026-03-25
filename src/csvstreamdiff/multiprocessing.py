@@ -47,15 +47,21 @@ class PartitionResult:
     bucket_dir: str
 
 
-def make_output_headers(left_key_columns: Sequence[str], include_full_rows: bool) -> dict[str, list[str]]:
+def make_output_headers(
+    left_key_columns: Sequence[str],
+    include_full_rows: bool,
+    include_normalized_values: bool,
+) -> dict[str, list[str]]:
     common_key_fields = [f"key_{column}" for column in left_key_columns]
     only_left = common_key_fields + (["left_row_json"] if include_full_rows else [])
     only_right = common_key_fields + (["right_row_json"] if include_full_rows else [])
     differences = common_key_fields + [
         "difference_count",
         "differences_text",
-        "differences_json",
     ]
+    if include_normalized_values:
+        differences.append("normalized_differences_text")
+    differences.append("differences_json")
     if include_full_rows:
         differences.extend(["left_row_json", "right_row_json"])
     duplicates = common_key_fields + ["side", "row_number", "row_json"]
@@ -278,8 +284,9 @@ def compare_bucket_worker(args: tuple[Any, ...]) -> dict[str, Any]:
     compare_pairs = list(zip(config["compare"]["left"], config["compare"]["right"]))
     normalization = NormalizationSettings(**config["comparison"])
     include_full_rows = bool(config["output"]["include_full_rows"])
+    include_normalized_values = bool(config["output"].get("include_normalized_values", False))
     report_every_rows = int(config["performance"]["report_every_rows"])
-    headers = make_output_headers(left_keys, include_full_rows)
+    headers = make_output_headers(left_keys, include_full_rows, include_normalized_values)
 
     results_dir = Path(temp_dir) / "bucket_results"
     results_dir.mkdir(parents=True, exist_ok=True)
@@ -408,6 +415,14 @@ def compare_bucket_worker(args: tuple[Any, ...]) -> dict[str, Any]:
                             "right_column": right_column,
                             "left_value": left_row.get(left_column),
                             "right_value": row.get(right_column),
+                            **(
+                                {
+                                    "normalized_left_value": left_normalized,
+                                    "normalized_right_value": right_normalized,
+                                }
+                                if include_normalized_values
+                                else {}
+                            ),
                         }
                     )
 
@@ -424,6 +439,15 @@ def compare_bucket_worker(args: tuple[Any, ...]) -> dict[str, Any]:
                         "differences_text": differences_text,
                         "differences_json": json.dumps(row_differences, ensure_ascii=False, sort_keys=True),
                     }
+                    if include_normalized_values:
+                        diff_row["normalized_differences_text"] = "; ".join(
+                            (
+                                f"{item['left_column']}: {item['normalized_left_value']} -> {item['normalized_right_value']}"
+                                if item["left_column"] == item["right_column"]
+                                else f"{item['left_column']}/{item['right_column']}: {item['normalized_left_value']} -> {item['normalized_right_value']}"
+                            )
+                            for item in row_differences
+                        )
                     if include_full_rows:
                         diff_row["left_row_json"] = json.dumps(left_row, ensure_ascii=False, sort_keys=True)
                         diff_row["right_row_json"] = json.dumps(row, ensure_ascii=False, sort_keys=True)
@@ -543,8 +567,8 @@ class ProgressMonitor:
                     f"partition {phase}",
                     ProgressBar(total=100, completed=int(ratio * 100), width=None),
                     f"{state}  {format_bytes(processed)}/{format_bytes(self.total_bytes[phase])}",
-                    f"rows={self.partition[phase]['rows']:,} rate={rate:,.0f}/s",
-                    f"eta={format_seconds(eta)}",
+                    f" rows={self.partition[phase]['rows']:,} rate={rate:,.0f}/s eta={format_seconds(eta)}",
+                    "",
                 )
 
             if self.sampling["target"] > 0 or self.sampling["done"]:
@@ -565,7 +589,7 @@ class ProgressMonitor:
                 ProgressBar(total=100, completed=int(bucket_ratio * 100), width=None),
                 f"[blue]run[/blue]  {self.completed_buckets}/{self.bucket_count}",
                 "",
-                f"eta={format_seconds(compare_eta)}",
+                f" eta={format_seconds(compare_eta)}",
             )
 
             workers = Table.grid(expand=True)

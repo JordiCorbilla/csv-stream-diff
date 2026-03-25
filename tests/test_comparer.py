@@ -21,7 +21,15 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
-def build_config(tmp_path: Path, left_path: Path, right_path: Path, *, sample_size: int = 0, seed: int = 123) -> dict:
+def build_config(
+    tmp_path: Path,
+    left_path: Path,
+    right_path: Path,
+    *,
+    sample_size: int = 0,
+    seed: int = 123,
+    include_normalized_values: bool = False,
+) -> dict:
     return {
         "files": {"left": str(left_path), "right": str(right_path)},
         "keys": {"left": ["customer_id", "transaction_date"], "right": ["cust_id", "txn_dt"]},
@@ -53,6 +61,7 @@ def build_config(tmp_path: Path, left_path: Path, right_path: Path, *, sample_si
             "directory": str(tmp_path / "output"),
             "prefix": "test_",
             "include_full_rows": True,
+            "include_normalized_values": include_normalized_values,
             "summary_format": "both",
         },
     }
@@ -233,6 +242,42 @@ def test_numeric_tolerance_avoids_tiny_differences(tmp_path) -> None:
 
     assert summary["counts"]["different_rows"] == 0
     assert summary["counts"]["different_cells"] == 0
+
+
+def test_differences_can_include_normalized_values_for_debugging(tmp_path) -> None:
+    left_path = tmp_path / "left.csv"
+    right_path = tmp_path / "right.csv"
+    write_csv(
+        left_path,
+        ["customer_id", "transaction_date", "amount", "status", "description"],
+        [
+            {"customer_id": "C1", "transaction_date": "2026-01-01", "amount": "20.11111", "status": "OPEN", "description": " alpha "},
+        ],
+    )
+    write_csv(
+        right_path,
+        ["cust_id", "txn_dt", "transaction_amount", "txn_status", "desc"],
+        [
+            {"cust_id": "C1", "txn_dt": "2026-01-01", "transaction_amount": "20.22222", "txn_status": "OPEN", "desc": "ALPHA"},
+        ],
+    )
+
+    config = build_config(tmp_path, left_path, right_path, include_normalized_values=True)
+    config["comparison"]["numeric_tolerance"] = None
+    config["comparison"]["numeric_decimal_places"] = 2
+    summary = compare_csv_files(config)
+
+    assert summary["counts"]["different_rows"] == 1
+    diff_rows = read_csv(Path(summary["outputs"]["differences"]))
+    assert len(diff_rows) == 1
+    assert "normalized_differences_text" in diff_rows[0]
+    assert "amount/transaction_amount: 20.11 -> 20.22" in diff_rows[0]["normalized_differences_text"]
+    difference_items = json.loads(diff_rows[0]["differences_json"])
+    amount_item = next(item for item in difference_items if item["left_column"] == "amount")
+    assert amount_item["left_value"] == "20.11111"
+    assert amount_item["right_value"] == "20.22222"
+    assert amount_item["normalized_left_value"] == "20.11"
+    assert amount_item["normalized_right_value"] == "20.22"
 
 
 def test_compare_csv_files_runs_with_multiple_workers(tmp_path) -> None:

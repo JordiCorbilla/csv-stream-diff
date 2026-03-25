@@ -80,9 +80,15 @@ The tool writes these artifacts to `output.directory`:
 
 - `difference_count`
 - `differences_text`
+- `normalized_differences_text` when `output.include_normalized_values` is enabled
 - `differences_json`
 
 `differences_json` contains the field-level left/right mismatches for that key. This keeps the diff output far smaller than writing one CSV row per changed field.
+
+When `output.include_normalized_values` is enabled, each item in `differences_json` also includes
+`normalized_left_value` and `normalized_right_value`. This is useful for diagnosing cases where
+raw source values differ but the configured normalization rules should make them compare equal or
+nearly equal.
 
 ## Sampling
 
