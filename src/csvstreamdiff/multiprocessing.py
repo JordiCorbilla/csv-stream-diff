@@ -20,6 +20,7 @@ from rich.progress_bar import ProgressBar
 from rich.table import Table
 from rich.text import Text
 
+from . import __version__
 from .hashing import NormalizationSettings, NormalizedKey, key_to_output_dict, normalized_key, normalized_pair
 from .streaming import CSVOptions, ensure_columns_exist, get_stream_position, open_dict_reader, open_dict_writer
 
@@ -492,9 +493,19 @@ def compare_bucket_worker(args: tuple[Any, ...]) -> dict[str, Any]:
 
 
 class ProgressMonitor:
-    def __init__(self, *, bucket_count: int, total_bytes_left: int, total_bytes_right: int, progress_enabled: bool):
+    def __init__(
+        self,
+        *,
+        bucket_count: int,
+        total_bytes_left: int,
+        total_bytes_right: int,
+        left_file: str,
+        right_file: str,
+        progress_enabled: bool,
+    ):
         self.bucket_count = bucket_count
         self.total_bytes = {"left": max(1, total_bytes_left), "right": max(1, total_bytes_right)}
+        self.files = {"left": left_file, "right": right_file}
         self.partition = {
             "left": {"rows": 0, "bytes": 0, "done": False},
             "right": {"rows": 0, "bytes": 0, "done": False},
@@ -546,9 +557,11 @@ class ProgressMonitor:
             summary.add_column(justify="left")
             summary.add_column(justify="right")
             summary.add_row(
-                Text("csv-stream-diff progress", style="bold cyan"),
+                Text(f"csv-stream-diff v{__version__}", style="bold cyan"),
                 Text(f"elapsed={format_seconds(elapsed)}  warnings={self.warning_count}", style="bold"),
             )
+            summary.add_row(Text(f"left: {self.files['left']}", style="cyan"), Text(""))
+            summary.add_row(Text(f"right: {self.files['right']}", style="cyan"), Text(""))
 
             phases = Table.grid(expand=True)
             phases.add_column(style="bold")

@@ -297,6 +297,8 @@ def compare_csv_files(config: dict[str, Any]) -> dict[str, Any]:
         bucket_count=effective["performance"]["bucket_count"],
         total_bytes_left=os.path.getsize(effective["files"]["left"]),
         total_bytes_right=os.path.getsize(effective["files"]["right"]),
+        left_file=str(Path(effective["files"]["left"]).resolve()),
+        right_file=str(Path(effective["files"]["right"]).resolve()),
         progress_enabled=bool(effective["performance"]["show_progress"]),
     )
     stop_drainer, stop_renderer, drainer, renderer = start_progress_threads(
